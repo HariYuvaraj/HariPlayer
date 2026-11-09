@@ -72,6 +72,7 @@ import com.hari.dxplayer.data.Track
 import com.hari.dxplayer.dsp.PresetStore
 import com.hari.dxplayer.BuildConfig
 import com.hari.dxplayer.dsp.SoundSettings
+import com.hari.dxplayer.dsp.TubeStyles
 import com.hari.dxplayer.support.CrashReporter
 import com.hari.dxplayer.support.Updater
 import kotlinx.coroutines.Dispatchers
@@ -445,7 +446,7 @@ private fun modesSummary(): String {
     val s = SoundSettings
     if (s.direct) return "Direct"
     val parts = mutableListOf<String>()
-    if (s.tube > 0) parts += listOf("", "Triode", "Pentode", "Modern")[s.tube]
+    if (s.tube > 0) parts += TubeStyles.get(s.tube).short
     if (s.rumble > 0) parts += "Rumble"
     if (s.resonance > 0 || s.turntable > 0) parts += "Vinyl"
     if (s.width != 5) parts += "Stage"
@@ -498,9 +499,9 @@ private fun ModesScreen(state: AppState) {
             }
         }
         ModeCard {
-            Text("Tube & analog amp", color = Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text("Tube sound", color = Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp))
-            val names = listOf("Off", "Warm triode", "Classic pentode", "Modern tube")
+            val names = TubeStyles.all.map { it.label }
             names.chunked(2).forEachIndexed { r, row ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     row.forEachIndexed { i, n ->
@@ -509,7 +510,7 @@ private fun ModesScreen(state: AppState) {
                     }
                 }
             }
-            Text("Adds tube-style harmonics and a fuller, rounder bass", color = Muted, fontSize = 12.sp)
+            Text(TubeStyles.get(SoundSettings.tube).hint, color = Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
         }
         ModeSlider("Sub-bass rumble", "Lifts 20–60 Hz only, up to +10 dB", SoundSettings.rumble) { v -> apply { SoundSettings.rumble = v } }
         ModeSlider("Vinyl resonance", "Deeper, resonating bass notes", SoundSettings.resonance) { v -> apply { SoundSettings.resonance = v } }

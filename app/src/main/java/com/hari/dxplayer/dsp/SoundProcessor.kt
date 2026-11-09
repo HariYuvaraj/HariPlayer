@@ -67,23 +67,21 @@ class SoundProcessor : BaseAudioProcessor() {
             list += Biquad("HSC", fs, 6500.0, -s.turntable * 0.6, 0.7) // softer sibilance
             boostDb += s.turntable * 0.1
         }
-        val bloom = when (s.tube) {
-            1 -> 2.5   // warm triode: rounder bass
-            2 -> 1.5   // classic pentode
-            3 -> 3.0   // modern tube: bigger low end
-            else -> 0.0
+        // Tube sound: the style's tone shape, glow (saturation) and stereo width.
+        val style = TubeStyles.get(s.tube)
+        var styleBoost = 0.0
+        for (f in style.filters) {
+            list += Biquad(f.type, fs, f.fc, f.gainDb, f.q)
+            if (f.gainDb > 0) styleBoost += f.gainDb
         }
-        if (bloom > 0) {
-            list += Biquad("LSC", fs, if (s.tube == 3) 70.0 else 100.0, bloom, 0.7)
-            boostDb += bloom * 0.6
-        }
-        tubeK = when (s.tube) { 1 -> 1.6; 2 -> 2.2; 3 -> 1.25; else -> 0.0 }
-        tubeBias = when (s.tube) { 1 -> 0.2; 3 -> 0.05; else -> 0.0 }
+        boostDb += styleBoost * 0.7
+        tubeK = style.drive
+        tubeBias = style.bias
         if (tubeK > 0) {
             val t = tanh(tubeBias)
             tubeNorm = 1.0 / (tubeK * (1 - t * t))
         }
-        widthFactor = 0.5 + s.width * 0.1
+        widthFactor = (0.5 + s.width * 0.1) * style.widthMul
 
         // Leave headroom for the boosts so loud passages do not clip.
         preGain = 10.0.pow((presetPreamp - min(boostDb, 14.0)) / 20.0)
