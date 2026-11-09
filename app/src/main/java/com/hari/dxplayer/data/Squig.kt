@@ -42,10 +42,61 @@ object Squig {
     }
 
     /** A target name with the sites that offer it, or one of the app's own targets ([asset]). */
-    data class TargetChoice(val name: String, val dbs: List<Db>, val asset: String? = null) {
+    /** A target: one of Hari's own curves ([asset]) or an IEM from his reference list ([ref]). */
+    data class TargetChoice(val name: String, val dbs: List<Db>, val asset: String? = null, val ref: RefIem? = null) {
         val sub: String
-            get() = asset?.let { "Your target" } ?: if (dbs.size == 1) dbs[0].name else "on ${dbs.size} sites"
-        val search: String by lazy { name.lowercase() }
+            get() = asset?.let { "Your target" } ?: ref?.group ?: if (dbs.size == 1) dbs[0].name else "on ${dbs.size} sites"
+        val search: String by lazy { "$name ${ref?.group ?: ""}".lowercase() }
+    }
+
+    /** An IEM from Hari's master list, found on squig.link by words in its name. */
+    data class RefIem(val group: String, val name: String, val words: List<List<String>>, val exclude: List<String>) {
+        fun matches(label: String): Boolean {
+            val n = norm(label)
+            return words.all { alts -> alts.any { n.contains(it) } } && exclude.none { n.contains(it) }
+        }
+    }
+
+    private fun norm(s: String) = s.lowercase().replace(Regex("[^a-z0-9]"), "")
+
+    private var refCache: List<RefIem>? = null
+
+    /** Hari's reference list (assets/reflist.txt): group;name;match words (a/b = either);exclude words. */
+    fun refs(ctx: Context): List<RefIem> = refCache ?: ctx.assets.open("reflist.txt").bufferedReader().readLines()
+        .filter { it.isNotBlank() && !it.startsWith("#") }
+        .mapNotNull { line ->
+            val p = line.split(';')
+            if (p.size < 3) null else RefIem(
+                p[0].trim(), p[1].trim(),
+                p[2].trim().split(Regex("\\s+")).map { w -> w.split('/').map { norm(it) }.filter { it.isNotEmpty() } },
+                p.getOrElse(3) { "" }.trim().split(Regex("\\s+")).map { norm(it) }.filter { it.isNotEmpty() }
+            )
+        }.also { refCache = it }
+
+    /** Every measurement of [r], best first: same site as [near], then same rig, then Super* Review, then shortest name. */
+    fun measurementsOf(r: RefIem, index: Index?, near: Db? = null): List<IemChoice> =
+        (index?.iems ?: emptyList()).filter { r.matches(it.label) }.sortedWith(
+            compareBy<IemChoice>({
+                when {
+                    near != null && it.db.base == near.base -> 0
+                    near != null && it.db.rig == near.rig && it.db.base == ROOT -> 1
+                    near != null && it.db.rig == near.rig -> 2
+                    it.db.base == ROOT -> 3
+                    else -> 4
+                }
+            }, { it.label.length })
+        )
+
+    /** Targets: Hari's own curves, then his reference list by category. */
+    fun targetChoices(ctx: Context): List<TargetChoice> =
+        myTargets + refs(ctx).map { TargetChoice(it.name, emptyList(), ref = it) }
+
+    /** Hari's IEMs: the five fixed ones, then his other owned IEMs that are measured on squig.link. */
+    fun myIemChoices(ctx: Context, index: Index?): List<IemChoice> {
+        val more = refs(ctx).filter { it.group == "Owned" }
+            .filter { r -> myIems.none { r.matches(it.label) || r.matches(it.file) } }
+            .mapNotNull { r -> measurementsOf(r, index, superReview).firstOrNull()?.copy(label = r.name) }
+        return myIems + more
     }
 
     class Index(val built: Long, val iems: List<IemChoice>, val targets: List<TargetChoice>)
@@ -127,7 +178,7 @@ object Squig {
                 async {
                     gate.withPermit {
                         val iems = get(db.base + "data/phone_book.json")?.let { parsePhoneBook(it, db) } ?: emptyList()
-                        val targets = get(db.base + "config.js")?.let { parseTargets(it) } ?: emptyList()
+                        val targets = emptyList<String>() // targets now come from Hari's own list
                         progress(done.incrementAndGet(), dbs.size)
                         Triple(db, iems, targets)
                     }
@@ -245,10 +296,18 @@ object Squig {
      * The target on [AutoEq.grid], preferring the IEM's own site (same rig and calibration),
      * then another site with the same rig. Returns the curve and where it came from.
      */
-    suspend fun targetCurve(ctx: Context, t: TargetChoice, iem: IemChoice): Pair<DoubleArray, Db?>? = withContext(Dispatchers.IO) {
+    suspend fun targetCurve(ctx: Context, t: TargetChoice, iem: IemChoice, index: Index? = null): Pair<DoubleArray, Db?>? = withContext(Dispatchers.IO) {
         if (t.asset != null) {
             val text = ctx.assets.open("targets/${t.asset}").bufferedReader().readText()
             return@withContext FrCurve.parse(text)?.let { it.on(AutoEq.grid) to null }
+        }
+        if (t.ref != null) {
+            // Another IEM as the target: use its measurement from the same site/rig as Hari's IEM when possible.
+            for (m in measurementsOf(t.ref, index, iem.db).take(3)) {
+                val c = iemCurve(m) ?: continue
+                return@withContext c to m.db
+            }
+            return@withContext null
         }
         val ordered = t.dbs.sortedBy {
             when {
@@ -273,7 +332,7 @@ object Squig {
         ctx.getSharedPreferences("autoeq", Context.MODE_PRIVATE).edit()
             .putString("iem", iem?.let { listOf(it.label, it.file, it.db.name, it.db.base, it.db.rig).joinToString(SEP) })
             .putString("target", target?.let {
-                listOf(it.name, it.asset ?: "") .plus(it.dbs.flatMap { d -> listOf(d.name, d.base, d.rig) }).joinToString(SEP)
+                listOf(it.name, it.asset ?: if (it.ref != null) "@ref" else "") .plus(it.dbs.flatMap { d -> listOf(d.name, d.base, d.rig) }).joinToString(SEP)
             })
             .apply()
     }
@@ -285,7 +344,8 @@ object Squig {
         }
         val target = p.getString("target", null)?.split(SEP)?.takeIf { it.size >= 2 }?.let { a ->
             val dbs = a.drop(2).chunked(3).filter { it.size == 3 }.map { Db(it[0], it[1], it[2]) }
-            TargetChoice(a[0], dbs, a[1].ifBlank { null })
+            if (a[1] == "@ref") refs(ctx).firstOrNull { it.name == a[0] }?.let { TargetChoice(it.name, emptyList(), ref = it) }
+            else TargetChoice(a[0], dbs, a[1].ifBlank { null })
         }
         return iem to target
     }

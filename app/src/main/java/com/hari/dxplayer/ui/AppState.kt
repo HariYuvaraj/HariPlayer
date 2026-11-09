@@ -168,15 +168,18 @@ class AppState {
             autoEqStatus = "Downloading ${iem.label}…"
             val m = Squig.iemCurve(iem) ?: throw IllegalStateException("couldn't download the ${iem.label} measurement from ${iem.db.name}")
             autoEqStatus = "Downloading ${target.name}…"
-            val (t, from) = Squig.targetCurve(ctx, target, iem)
-                ?: throw IllegalStateException("couldn't download the ${target.name} target")
+            val (t, from) = Squig.targetCurve(ctx, target, iem, squig)
+                ?: throw IllegalStateException(
+                    if (target.ref != null) "${target.name} isn't measured on squig.link (or the list hasn't loaded yet)"
+                    else "couldn't download the ${target.name} target"
+                )
             autoEqStatus = "Working out the EQ…"
             val r = withContext(Dispatchers.Default) { AutoEq.fit("${iem.label} → ${target.name}", m, t) }
             val note = when {
                 from == null -> null
                 from.rig != iem.db.rig ->
                     "The target is for the ${from.rig} rig but this IEM was measured on ${iem.db.rig}, so treble above about 5 kHz may be off."
-                from.base != iem.db.base -> "Target taken from ${from.name}."
+                from.base != iem.db.base || target.ref != null -> "Target measured by ${from.name}."
                 else -> null
             }
             autoEq = AutoEqOutcome(r, iem, target, note)

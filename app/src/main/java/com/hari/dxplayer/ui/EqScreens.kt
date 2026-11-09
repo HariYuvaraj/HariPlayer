@@ -224,12 +224,12 @@ private fun SearchBox(query: String, hint: String, onChange: (String) -> Unit) {
 }
 
 @Composable
-private fun ChoiceRow(title: String, sub: String, selected: Boolean, onClick: () -> Unit) {
+private fun ChoiceRow(title: String, sub: String, selected: Boolean, enabled: Boolean = true, onClick: () -> Unit) {
     Column(
-        Modifier.fillMaxWidth().clickable(onClick = onClick)
+        Modifier.fillMaxWidth().clickable(enabled = enabled, onClick = onClick)
             .background(if (selected) Raised else Bg).padding(horizontal = 16.dp, vertical = 9.dp)
     ) {
-        Text(title, color = if (selected) Accent else Ink, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(title, color = if (selected) Accent else if (enabled) Ink else Muted, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (sub.isNotBlank()) Text(sub, color = Muted, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
@@ -258,7 +258,7 @@ fun PickIemScreen(state: AppState) {
     var query by remember { mutableStateOf("") }
     val all = state.squig?.iems ?: emptyList()
     val found = remember(query, all) { all.filter { matches(it.search, query) } }
-    val mine = Squig.myIems.filter { matches(it.search, query) }
+    val mine = remember(state.squig) { Squig.myIemChoices(ctx, state.squig) }.filter { matches(it.search, query) }
     fun choose(c: Squig.IemChoice) { state.pick(ctx, iem = c); state.back() }
 
     Column(Modifier.fillMaxSize()) {
@@ -283,22 +283,33 @@ fun PickIemScreen(state: AppState) {
 fun PickTargetScreen(state: AppState) {
     val ctx = LocalContext.current
     var query by remember { mutableStateOf("") }
-    val all = state.squig?.targets ?: emptyList()
-    val found = remember(query, all) { all.filter { matches(it.search, query) } }
-    val mine = Squig.myTargets.filter { matches(it.search, query) }
+    val choices = remember { Squig.targetChoices(ctx) }
+    val counts = remember(state.squig) {
+        choices.associate { c -> c.name to (c.ref?.let { r -> Squig.measurementsOf(r, state.squig).size } ?: -1) }
+    }
+    val shown = choices.filter { matches(it.search, query) }
     fun choose(c: Squig.TargetChoice) { state.pick(ctx, target = c); state.back() }
 
     Column(Modifier.fillMaxSize()) {
         Header("Target sound", { state.back() })
-        SearchBox(query, "Search targets, e.g. Harman, IEF, bass") { query = it }
+        SearchBox(query, "Search, e.g. Grand Maestro, basshead, endgame") { query = it }
         ListStatus(state)
         LazyColumn(Modifier.weight(1f)) {
-            if (mine.isNotEmpty()) {
-                item { SectionTitle("My targets") }
-                items(mine) { c -> ChoiceRow(c.name, c.sub, state.pickedTarget?.name == c.name) { choose(c) } }
+            shown.groupBy { it.ref?.group ?: "My targets" }.forEach { (group, list) ->
+                item { SectionTitle(group) }
+                items(list) { c ->
+                    val n = counts[c.name] ?: -1
+                    val sub = when {
+                        c.ref == null -> c.sub
+                        state.squig == null -> "Loading the squig.link list\u2026"
+                        n == 0 -> "Not measured on squig.link"
+                        else -> "Sound like this IEM \u00b7 $n measurement" + if (n == 1) "" else "s"
+                    }
+                    val usable = c.ref == null || state.squig == null || n > 0
+                    val selected = state.pickedTarget?.name == c.name && state.pickedTarget?.ref?.group == c.ref?.group
+                    ChoiceRow(c.name, sub, selected, enabled = usable) { choose(c) }
+                }
             }
-            item { SectionTitle("All targets on squig.link (${found.size})") }
-            items(found.take(SHOW_MAX)) { c -> ChoiceRow(c.name, c.sub, state.pickedTarget?.name == c.name) { choose(c) } }
         }
     }
 }

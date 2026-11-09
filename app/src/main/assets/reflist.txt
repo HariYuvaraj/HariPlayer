@@ -1,0 +1,171 @@
+# Hari's IEM reference list: group;name;match words (a/b = either);exclude words
+Owned;FATfreq x HBB Deuce;fatfreq deuce;adapter adaptor 15ohm
+Owned;AFUL Performer 5+2;aful performer52;15ohm
+Owned;AFUL Performer 5;aful performer5;performer52 15ohm 36ohm 75ohm
+Owned;Jomo Nautilus;jomo nautilus;ultra 15ohm 30ohm
+Owned;CrinEar Daybreak;crinear daybreak;shallow deep preprod
+Owned;FlipEars Legion;flipears legion;shallow deep keigo
+Owned;Night Oblivion Hermes;oblivion hermes;
+Owned;FiiO FH15;fiio fh15;
+Owned;Shure SE425;shure se425;
+Owned;Radius Volt HP-NHR31;radius nhr31;
+Owned;Yincrow Buffalo;yincrow buffalo;
+Owned;Final Audio E5000;final e5000;
+Summit-fi;NSKY Merna;nsky merna;
+Summit-fi;Subtonic Storm;subtonic storm;
+Summit-fi;Letshuoer Cadenza 12;letshuoer cadenza12;
+Summit-fi;Thieaudio Valhalla;thieaudio valhalla;
+Summit-fi;Letshuoer Sonata;letshuoer sonata;
+Endgame+;Thieaudio V16 Divinity;thieaudio v16;
+Endgame+;Letshuoer Mystic 8;mystic8;
+Endgame+;IO Cielo;cielo;
+Endgame+;Sony IER-Z1R;ierz1r;
+Endgame+;Thieaudio Monarch MKIV;thieaudio monarchmkiv/monarchmk4/monarch4;
+Endgame+;Thieaudio Prestige LTD;thieaudio prestige ltd;
+Endgame+;Symphonium Crimson;symphonium crimson;
+Endgame+;Thieaudio Prestige;thieaudio prestige;ltd
+Endgame+;FATfreq Grand Maestro;fatfreq grandmaestro;anniversary
+Endgame+;Kinera Imperial Loki;kinera loki;
+Endgame+;Empire Ears Raven;empire raven;
+Endgame;Thieaudio Monarch MK2;thieaudio monarchmkii/monarchmk2/monarch2;
+Endgame;Thieaudio Monarch MK3;thieaudio monarchmkiii/monarchmk3/monarch3;
+Endgame;Thieaudio Monarch (original);thieaudio monarch;mk 2 3 4 ii iv
+Endgame;Elysian Apostle;elysian apostle;
+Endgame;Thieaudio Origin;thieaudio origin;
+Endgame;DUNU Glacier;dunu glacier;
+Endgame;UM MEST MKII;mest mkii/mk2;mext
+Endgame;UM MEST MKIII;mest mkiii/mk3;mext
+Endgame;UM MEST (original);unique mest;mk mext indie
+Endgame;Symphonium Helios SE;symphonium heliosse;
+Endgame;Thieaudio Hype 10;thieaudio hype10;
+Endgame;XENNS Top Pro;xenns toppro;
+Endgame;XENNS Mangird Tea Pro SE;teaprose;
+Endgame;NiceHCK Rockies;rockies;
+Endgame;AFUL Dawn-X;aful dawnx;shallow deep
+Endgame;TangZu Xuan Wu Gate;tangzu xuanwu;gate2
+Endgame;64 Audio U12t;u12t;
+Endgame;Empire Ears Legend Evo;empire evo;
+Endgame;Letshuoer EJ07;ej07;
+Endgame;Softears RSV;softears rsv;mk2 mkii
+Endgame;Meze Astru;astru;
+Basshead;FATfreq Grand Maestro;fatfreq grandmaestro;anniversary
+Basshead;Kiwi Ears x HBB Punch;kiwi punch;
+Basshead;Punch Audio Martilo;martilo;
+Basshead;CrinEar Monolith;monolith;
+Basshead;FATfreq x HBB Deuce;fatfreq deuce;adapter adaptor 15ohm
+Basshead;Punch Audio Portazo;portazo;
+Basshead;7Hz x Crinacle Diablo;diablo;
+Basshead;Symphonium Giant;symphonium giant;
+Basshead;FATfreq Maestro Mini;fatfreq maestromini;
+Basshead;Letshuoer x Aoshida E20;aoshida e20;
+Basshead;Truthear x Crinacle Blue 2;truthear blue2/blueii;
+Basshead;KBear Rosefinch;rosefinch;
+Basshead;Softears RSV MKII;softears rsv mkii/mk2;
+Basshead;FiR Audio Radon 6;radon6;
+Flagship & Deuce upgrades;Jomo Nautic Stellar;jomo nautic;
+Flagship & Deuce upgrades;FATfreq Grand Maestro;fatfreq grandmaestro;anniversary
+Flagship & Deuce upgrades;FATfreq Grand Maestro Anniversary;fatfreq grandmaestro anniversary;
+Flagship & Deuce upgrades;FATfreq Maestro Mini;fatfreq maestromini;
+Flagship & Deuce upgrades;FATfreq Scarlet Mini;fatfreq scarletmini;
+Flagship & Deuce upgrades;FATfreq Maestro SE;fatfreq maestrose;
+Flagship & Deuce upgrades;Elysian Annihilator;elysian annihilator;
+Flagship & Deuce upgrades;Elysian Diva;elysian diva;
+Flagship & Deuce upgrades;Elysian Apostle;elysian apostle;
+Flagship & Deuce upgrades;Elysian Pilgrim;elysian pilgrim;
+Flagship & Deuce upgrades;Sony IER-Z1R;ierz1r;
+Flagship & Deuce upgrades;RUVIEST Nyx;ruviest nyx;
+Flagship & Deuce upgrades;Penon x Effect Audio Archangel;archangel;
+Flagship & Deuce upgrades;Symphonium Titan;symphonium titan;
+Flagship & Deuce upgrades;Symphonium Crimson;symphonium crimson;
+Flagship & Deuce upgrades;Thieaudio Origin;thieaudio origin;
+Flagship & Deuce upgrades;Thieaudio Monarch MKIV;thieaudio monarchmkiv/monarchmk4/monarch4;
+Flagship & Deuce upgrades;Thieaudio Valhalla;thieaudio valhalla;
+Flagship & Deuce upgrades;Thieaudio Hype 10;thieaudio hype10;
+Flagship & Deuce upgrades;Thieaudio Hype 4 MKII;thieaudio hype4 mkii/mk2;
+Flagship & Deuce upgrades;Empire Ears Odin;empire odin;
+Flagship & Deuce upgrades;Empire Ears Bravado MkII;empire bravado mkii/mk2;
+Flagship & Deuce upgrades;Empire Ears Valkyrie MkII;empire valkyrie mkii/mk2;
+Flagship & Deuce upgrades;Noble Audio Shogun;noble shogun;
+Flagship & Deuce upgrades;Noble Audio Lu Ban;noble luban;
+Flagship & Deuce upgrades;Noble Audio Van Gogh;noble vangogh;
+Flagship & Deuce upgrades;Kiwi Ears x HBB Punch;kiwi punch;
+Flagship & Deuce upgrades;Subtonic Storm;subtonic storm;
+Flagship & Deuce upgrades;Legend Evo;legend evo;
+Flagship & Deuce upgrades;Nightjar Singularity;nightjar singularity;
+Flagship & Deuce upgrades;Brise Fugaku;fugaku;
+Flagship & Deuce upgrades;Ice Lab Spectrumica;spectrumica;
+Flagship & Deuce upgrades;Faith Audio Labs E1000;faith e1000;
+Flagship & Deuce upgrades;Hisenior Mega5EST Bass+;mega5est bass;
+Flagship & Deuce upgrades;Alpha Omega Omega;alphaomegaomega;
+Flagship & Deuce upgrades;64 Audio Volur;volur;
+Flagship & Deuce upgrades;Astell&Kern x 64 Audio XIO;xio 64/kern;
+Flagship & Deuce upgrades;Vision Ears EXT MK II;vision ext mkii/mk2;
+Flagship & Deuce upgrades;Forte Ears Mefisto;mefisto;
+Flagship & Deuce upgrades;Volk Audio x A&K Stella;stella volk/kern;
+Flagship & Deuce upgrades;Sennheiser IE 900;sennheiser ie900;
+Flagship & Deuce upgrades;Sennheiser IE 600;sennheiser ie600;
+Flagship & Deuce upgrades;Dita Audio Mecha;dita mecha;
+Flagship & Deuce upgrades;Campfire Audio Chimera;campfire chimera;
+Flagship & Deuce upgrades;Campfire Audio Clara;campfire clara;
+Flagship & Deuce upgrades;Campfire Audio Grand Luna;campfire grandluna;
+Flagship & Deuce upgrades;Campfire Audio Astrolith;campfire astrolith;
+Flagship & Deuce upgrades;Campfire Audio Alien Brain;campfire alienbrain;
+Flagship & Deuce upgrades;Campfire Audio Andromeda;campfire andromeda;
+Flagship & Deuce upgrades;JH Audio Jolene;jolene;
+Flagship & Deuce upgrades;JH Audio JH16v2;jh16;
+Flagship & Deuce upgrades;JH Audio Roxanne;roxanne;
+Bone conduction;FlipEars Arion;flipears arion;
+Bone conduction;FlipEars Aegis;flipears aegis;
+Bone conduction;FlipEars Aisha Electri;flipears aisha;
+Bone conduction;UM Maven III;maven iii/3;
+Bone conduction;UM MEST MKII;mest mkii/mk2;mext
+Bone conduction;UM MEXT;mext;
+Bone conduction;Penon Fan 3;penon fan3;
+Bone conduction;ISN EBC80;ebc80;
+Bone conduction;TangZu BaJie;bajie;
+Bone conduction;TangZu Wukong;tangzu wukong;
+Bone conduction;CVJ Mythera;mythera;
+Bone conduction;Kiwi Ears Etude;etude;
+Bone conduction;Mysticraft HEX;mysticraft hex;
+Bone conduction;Canpur CP622B;cp622;
+Bone conduction;Canpur CP752B;cp752;
+Bone conduction;BGVP Solomon;bgvp solomon;
+Bone conduction;AFUL Dawn-X;aful dawnx;shallow deep
+Other FlipEars;FlipEars Aurora XXIV;flipears aurora;
+Other FlipEars;FlipEars Zurq;zurq;
+Other FlipEars;FlipEars Artha;flipears artha;
+Other FlipEars;FlipEars Aether;flipears aether;
+All-rounders;Moondrop Variations;moondrop variations;
+All-rounders;Moondrop Blessing 3;blessing3;
+All-rounders;DUNU DaVinci;davinci;
+All-rounders;XENNS Mangird Tea Pro;teapro;
+All-rounders;ZiiGaat Doscinco;doscinco;
+All-rounders;Punch Audio Martilo;martilo;
+All-rounders;DUNU x KOTO ITO;dunu ito;
+All-rounders;Yanyin Canon 2;yanyin canon ii/2;
+Looks;Kinera Imperial Skuld;skuld;
+Looks;Kinera Imperial Loki;kinera loki;
+Looks;Kinera ThorKing;thorking;
+Budget wired;Kiwi Ears Quartet;kiwi quartet;
+Budget wired;Kiwi Ears Belle;kiwi belle;
+Budget wired;Kiwi Ears KE4;kiwi ke4;
+Budget wired;KZ ZS10 Pro 2;zs10pro 2/ii/x;
+Budget wired;KZ ZA12;za12;
+Budget wired;AFUL Explorer;aful explorer;
+Budget wired;Sennheiser IE 200;sennheiser ie200;
+Budget wired;Sony MDR-XB55AP;xb55;
+Budget wired;Truthear Pure;truthear pure;
+Budget wired;1MORE Triple Driver;1more triple;
+Budget wired;Geekwold GK220;gk220;
+Wireless ANC;Sony WF-1000XM6;1000xm6;
+Wireless ANC;Sennheiser Momentum True Wireless 4;momentum truewireless/tw 4;
+Wireless ANC;Bose QuietComfort Ultra Earbuds;bose ultra;
+Wireless ANC;Soundcore Liberty 4 NC;liberty4nc;
+Wireless ANC;EarFun Air Pro 4+;airpro4;
+Flathead earbuds;NiceHCK EBX25Ti;ebx25;
+Flathead earbuds;Simphonio Dragon 3+;dragon3;
+Flathead earbuds;Simphonio D-MAX;simphonio dmax;
+Flathead earbuds;Fidue Thunder;fidue thunder;
+Flathead earbuds;Moondrop Pavane;pavane;
+Flathead earbuds;AFUL PolarNight;polarnight;
+Flathead earbuds;FiiO FF5;fiio ff5;
