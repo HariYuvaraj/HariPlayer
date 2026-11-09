@@ -80,13 +80,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 // ---------------------------------------------------------------- colours
-private val Bg = Color(0xFF0E0F12)
-private val Card = Color(0xFF181A1F)
-private val Raised = Color(0xFF1F2229)
-private val Line = Color(0xFF3A3D46)
-private val Ink = Color(0xFFF2F2F4)
-private val Muted = Color(0xFFA9ACB6)
-private val Accent = Color(0xFFF5B54A)
+internal val Bg = Color(0xFF0E0F12)
+internal val Card = Color(0xFF181A1F)
+internal val Raised = Color(0xFF1F2229)
+internal val Line = Color(0xFF3A3D46)
+internal val Ink = Color(0xFFF2F2F4)
+internal val Muted = Color(0xFFA9ACB6)
+internal val Accent = Color(0xFFF5B54A)
 private val Art = Color(0xFF3B2A12)
 private val mixDots = listOf(
     0xFFF5B54A, 0xFF4FD1C5, 0xFF8AB4FF, 0xFFC3A6FF, 0xFFFF8A65, 0xFF9CCC65,
@@ -130,6 +130,8 @@ fun HariApp(state: AppState) {
                     is Screen.Tracks -> TracksScreen(state, s.title, s.list)
                     Screen.Now -> NowScreen(state)
                     Screen.Eq -> EqScreen(state)
+                    Screen.PickIem -> PickIemScreen(state)
+                    Screen.PickTarget -> PickTargetScreen(state)
                     Screen.Modes -> ModesScreen(state)
                     Screen.Support -> SupportScreen(state)
                 }
@@ -140,14 +142,14 @@ fun HariApp(state: AppState) {
 
 // ---------------------------------------------------------------- shared bits
 @Composable
-private fun Message(text: String) {
+internal fun Message(text: String) {
     Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
         Text(text, color = Ink, fontSize = 16.sp, textAlign = TextAlign.Center)
     }
 }
 
 @Composable
-private fun Header(title: String, onBack: (() -> Unit)?, right: @Composable () -> Unit = {}) {
+internal fun Header(title: String, onBack: (() -> Unit)?, right: @Composable () -> Unit = {}) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -165,7 +167,7 @@ private fun Header(title: String, onBack: (() -> Unit)?, right: @Composable () -
 }
 
 @Composable
-private fun RoundButton(label: String, size: Dp, bg: Color, fg: Color, onClick: () -> Unit) {
+internal fun RoundButton(label: String, size: Dp, bg: Color, fg: Color, onClick: () -> Unit) {
     Box(
         Modifier.size(size).clip(CircleShape).background(bg).clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -173,7 +175,7 @@ private fun RoundButton(label: String, size: Dp, bg: Color, fg: Color, onClick: 
 }
 
 @Composable
-private fun Pill(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+internal fun Pill(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
         modifier
             .heightIn(min = 44.dp)
@@ -192,7 +194,7 @@ private fun Pill(label: String, selected: Boolean, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun SectionTitle(text: String) {
+internal fun SectionTitle(text: String) {
     Text(
         text.uppercase(), color = Muted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
         letterSpacing = 1.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -200,7 +202,7 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
-private fun AlbumArt(track: Track?, size: Dp, corner: Dp) {
+internal fun AlbumArt(track: Track?, size: Dp, corner: Dp) {
     val ctx = LocalContext.current
     var bmp by remember(track?.id) { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(track?.id) {
@@ -229,7 +231,7 @@ private fun AlbumArt(track: Track?, size: Dp, corner: Dp) {
 }
 
 @Composable
-private fun MiniPlayer(state: AppState) {
+internal fun MiniPlayer(state: AppState) {
     if (state.nowTitle.isBlank()) return
     Row(
         Modifier
@@ -459,65 +461,10 @@ private fun InfoCard(label: String, value: String, modifier: Modifier, onClick: 
 }
 
 // ---------------------------------------------------------------- EQ
-private fun displayName(ctx: Context, uri: Uri): String? =
+internal fun displayName(ctx: Context, uri: Uri): String? =
     ctx.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
         if (c.moveToFirst()) c.getString(0) else null
     }
-
-@Composable
-private fun EqScreen(state: AppState) {
-    val ctx = LocalContext.current
-    @Suppress("UNUSED_VARIABLE") val tick = state.soundTick // read so the screen redraws on change
-    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
-            PresetStore.import(ctx, uri, displayName(ctx, uri))
-            state.presets = PresetStore.all(ctx)
-        }
-    }
-    fun apply(block: () -> Unit) {
-        block(); SoundSettings.changed(); SoundSettings.save(ctx); state.soundTick = state.soundTick + 1
-    }
-    Column(Modifier.fillMaxSize()) {
-        Header("EQ", { state.back() }) {
-            Switch(
-                checked = SoundSettings.eqOn, onCheckedChange = { v -> apply { SoundSettings.eqOn = v } },
-                colors = SwitchDefaults.colors(checkedTrackColor = Accent)
-            )
-        }
-        LazyColumn(Modifier.weight(1f)) {
-            item { SectionTitle("My IEM · one tap") }
-            itemsIndexed(state.presets) { _, p ->
-                val sel = SoundSettings.preset?.name == p.name
-                Pill(p.name, sel, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
-                    apply { SoundSettings.preset = if (sel) null else p; SoundSettings.eqOn = true }
-                }
-            }
-            item {
-                Pill("+ Import preset (.txt)", false, Modifier.fillMaxWidth().padding(16.dp)) {
-                    importer.launch(arrayOf("text/plain", "*/*"))
-                }
-            }
-            SoundSettings.preset?.let { p ->
-                item { SectionTitle("${p.name} · preamp ${p.preampDb} dB") }
-                itemsIndexed(p.filters) { _, f ->
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 3.dp).clip(RoundedCornerShape(10.dp)).background(Card).padding(10.dp)) {
-                        Text(when (f.type) { "LSC" -> "Low shelf"; "HSC" -> "High shelf"; else -> "Peak" }, color = Muted, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                        Text("${f.fc.toInt()} Hz", color = Ink, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                        Text("%+.1f dB".format(f.gainDb), color = Ink, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                        Text("Q %.2f".format(f.q), color = Muted, fontSize = 13.sp)
-                    }
-                }
-            }
-            item {
-                Text(
-                    "Presets use the Equalizer APO / AutoEQ ParametricEQ.txt format. Name each file after the IEM " +
-                        "(e.g. \"Deuce - V5.2.txt\"). You can also copy them into Android/data/com.hari.dxplayer/files/eq from your PC.",
-                    color = Muted, fontSize = 12.sp, modifier = Modifier.padding(16.dp)
-                )
-            }
-        }
-    }
-}
 
 // ---------------------------------------------------------------- Sound modes
 @Composable
@@ -591,7 +538,7 @@ private fun ModesScreen(state: AppState) {
 }
 
 @Composable
-private fun ModeCard(content: @Composable () -> Unit) {
+internal fun ModeCard(content: @Composable () -> Unit) {
     Column(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(16.dp)).background(Card).padding(14.dp)
     ) { content() }

@@ -11,9 +11,13 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import com.hari.dxplayer.data.Library
 import com.hari.dxplayer.data.Mix
+import com.hari.dxplayer.data.Squig
 import com.hari.dxplayer.data.Track
+import com.hari.dxplayer.dsp.AutoEq
 import com.hari.dxplayer.dsp.PeqPreset
 import com.hari.dxplayer.dsp.PresetStore
+import com.hari.dxplayer.dsp.SoundSettings
+import java.io.File
 import com.hari.dxplayer.support.CrashReporter
 import com.hari.dxplayer.support.Updater
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +31,8 @@ sealed interface Screen {
     data object Eq : Screen
     data object Modes : Screen
     data object Support : Screen
+    data object PickIem : Screen
+    data object PickTarget : Screen
 }
 
 class AppState {
@@ -94,6 +100,108 @@ class AppState {
     fun refreshSupport(ctx: Context) {
         pendingCrash = CrashReporter.pendingReport(ctx)
         safeMode = CrashReporter.safeModeActive(ctx)
+    }
+
+    // AutoEQ: IEM + target from squig.link
+    class AutoEqOutcome(
+        val result: AutoEq.Result,
+        val iem: Squig.IemChoice,
+        val target: Squig.TargetChoice,
+        val note: String?,
+    )
+
+    var squig by mutableStateOf<Squig.Index?>(null)
+    var squigStatus by mutableStateOf("")
+    var squigBusy by mutableStateOf(false)
+    var pickedIem by mutableStateOf<Squig.IemChoice?>(null)
+    var pickedTarget by mutableStateOf<Squig.TargetChoice?>(null)
+    var autoEq by mutableStateOf<AutoEqOutcome?>(null)
+    var autoEqBusy by mutableStateOf(false)
+    var autoEqStatus by mutableStateOf("")
+    private var autoEqRestored = false
+
+    fun restoreAutoEq(ctx: Context) {
+        if (autoEqRestored) return
+        autoEqRestored = true
+        val (i, t) = Squig.restore(ctx)
+        pickedIem = i ?: Squig.myIems.first()
+        pickedTarget = t ?: Squig.myTargets.first()
+    }
+
+    /** Loads the cached squig.link list, building it when missing, old or [force]d. */
+    suspend fun loadSquig(ctx: Context, force: Boolean = false) {
+        if (squigBusy) return
+        if (!force && squig == null) squig = withContext(Dispatchers.IO) { Squig.loadCached(ctx) }
+        val old = squig?.let { System.currentTimeMillis() - it.built > 14L * 24 * 3600 * 1000 } ?: true
+        if (!force && !old) {
+            squigStatus = "${squig!!.iems.size} IEMs and ${squig!!.targets.size} targets from squig.link"
+            return
+        }
+        squigBusy = true
+        squigStatus = "Reading squig.link…"
+        try {
+            squig = Squig.build(ctx) { done, total -> squigStatus = "Reading squig.link… $done of $total sites" }
+            squigStatus = "${squig!!.iems.size} IEMs and ${squig!!.targets.size} targets from squig.link"
+        } catch (e: Exception) {
+            squigStatus = if (squig != null) "Couldn't refresh (${e.message}). Using the saved list."
+            else "Couldn't read squig.link: ${e.message ?: "no connection"}. Your own IEMs and targets still work."
+        } finally {
+            squigBusy = false
+        }
+    }
+
+    fun pick(ctx: Context, iem: Squig.IemChoice? = pickedIem, target: Squig.TargetChoice? = pickedTarget) {
+        pickedIem = iem
+        pickedTarget = target
+        autoEq = null
+        autoEqStatus = ""
+        Squig.save(ctx, iem, target)
+    }
+
+    suspend fun makeEq(ctx: Context) {
+        val iem = pickedIem ?: return
+        val target = pickedTarget ?: return
+        if (autoEqBusy) return
+        autoEqBusy = true
+        autoEq = null
+        try {
+            autoEqStatus = "Downloading ${iem.label}…"
+            val m = Squig.iemCurve(iem) ?: throw IllegalStateException("couldn't download the ${iem.label} measurement from ${iem.db.name}")
+            autoEqStatus = "Downloading ${target.name}…"
+            val (t, from) = Squig.targetCurve(ctx, target, iem)
+                ?: throw IllegalStateException("couldn't download the ${target.name} target")
+            autoEqStatus = "Working out the EQ…"
+            val r = withContext(Dispatchers.Default) { AutoEq.fit("${iem.label} → ${target.name}", m, t) }
+            val note = when {
+                from == null -> null
+                from.rig != iem.db.rig ->
+                    "The target is for the ${from.rig} rig but this IEM was measured on ${iem.db.rig}, so treble above about 5 kHz may be off."
+                from.base != iem.db.base -> "Target taken from ${from.name}."
+                else -> null
+            }
+            autoEq = AutoEqOutcome(r, iem, target, note)
+            autoEqStatus = ""
+        } catch (e: Exception) {
+            autoEqStatus = "Couldn't make the EQ: ${e.message}"
+        } finally {
+            autoEqBusy = false
+        }
+    }
+
+    /** Saves the result as a preset file and switches to it. */
+    fun useEq(ctx: Context) {
+        val o = autoEq ?: return
+        val name = "${o.iem.label} - ${o.target.name}".replace(Regex("""[\\/:*?"<>|]"""), "_")
+        val p = o.result.preset.copy(name = name)
+        File(PresetStore.dir(ctx), "$name.txt").writeText(AutoEq.toText(p))
+        presets = PresetStore.all(ctx)
+        SoundSettings.preset = presets.firstOrNull { it.name == name } ?: p
+        SoundSettings.eqOn = true
+        SoundSettings.direct = false
+        SoundSettings.changed()
+        SoundSettings.save(ctx)
+        soundTick++
+        autoEqStatus = "Now playing with \"$name\"."
     }
 
     /** Bumped whenever sound settings change so screens redraw. */

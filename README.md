@@ -1,4 +1,4 @@
-# Hari Player – custom music player for the iBasso DX270 (version 0.2)
+# Hari Player – custom music player for the iBasso DX270 (version 0.3)
 
 ## What it does
 
@@ -9,7 +9,8 @@
   - Tamil, Remixes, Tamil Classical, Anirudh, Love Songs, Harris Jayaraj
   - A song joins a mix when a keyword appears in its folder name, title, artist, album or composer.
 - **Playback:** in the background with a notification. The DX270's play / previous / next keys work, the wheel controls volume, and music pauses when the IEMs are unplugged.
-- **One-tap EQ per IEM:** Equalizer APO / AutoEQ `.txt` presets.
+- **AutoEQ for your IEM:** pick **My IEM** (your five are at the top, then every IEM on the squig.link network) and a **Target sound** (your V5.2 and V5.1 first, then every squig.link target). Tap **Make EQ** and the app works out a 10-band parametric EQ, shows the before/after graph, and saves it as a one-tap preset. Sites that have opted out of aggregation, such as Crinacle's Hangout.Audio, aren't used.
+- **One-tap EQ per IEM:** saved presets, plus any Equalizer APO / AutoEQ `.txt` preset you import.
 - **Sound modes:**
   - Direct
   - Tube character: warm triode, classic pentode or modern tube
@@ -25,7 +26,6 @@
 
 ### Not yet
 
-- AutoEQ from squig.link inside the app
 - Instrument Studio, DSD remastering, AI restore and AI hiss removal (planned on the PC, via Stem Studio)
 - Gain and output switching (these stay in iBasso's settings)
 - DSD and APE files (use Mango)
@@ -127,6 +127,9 @@ Hari Player is an ordinary app. It doesn't touch the DX270's system, firmware, M
 | `data/Library.kt` | Reads the music library; smart mix keywords |
 | `dsp/SoundProcessor.kt` | The audio engine: PEQ, tube, rumble, vinyl, soundstage |
 | `dsp/PeqPreset.kt` | Reads EQ preset files |
+| `dsp/AutoEq.kt` | Fits a parametric EQ from an IEM measurement to a target |
+| `data/Squig.kt` | Reads IEM and target lists and measurements from squig.link |
+| `ui/EqScreens.kt` | EQ screen and the My IEM / Target sound pickers |
 | `support/CrashReporter.kt` | Crash reports, diagnostic reports, Safe mode |
 | `support/Updater.kt` | Checks GitHub for updates, downloads and installs them |
 | `PlaybackService.kt` | Background playback, hardware buttons, notification |

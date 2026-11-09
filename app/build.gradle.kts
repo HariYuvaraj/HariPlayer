@@ -15,7 +15,7 @@ android {
         // Builds on GitHub set VERSION_CODE to the build number; local builds are 1.
         val build = (System.getenv("VERSION_CODE") ?: "1").toInt()
         versionCode = build
-        versionName = "0.2.$build"
+        versionName = "0.3.$build"
         // "owner/repo" on GitHub that publishes updates (set in gradle.properties or by the build).
         val updateRepo = (project.findProperty("updateRepo") as String?) ?: ""
         buildConfigField("String", "UPDATE_REPO", "\"$updateRepo\"")
